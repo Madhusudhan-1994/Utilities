@@ -7,8 +7,19 @@ const winConditions = [
     [0, 4, 8], [2, 4, 6]
 ];
 let currentPlayer = 'X';
-let gameActive = true;
+let gameActive = false; // Start inactive until name is entered
 let gameState = ['', '', '', '', '', '', '', '', ''];
+let playerName = 'Player';
+
+function startGame() {
+    const nameInput = document.getElementById('player-name');
+    if (nameInput.value.trim() !== '') {
+        playerName = nameInput.value.trim();
+    }
+    document.getElementById('name-dialog').style.display = 'none';
+    gameActive = true;
+    statusText.textContent = `${playerName}'s turn`;
+}
 
 // Difficulty AI functions
 function findWinningMove(player) {
@@ -33,30 +44,6 @@ function getSmartMove() {
     return -1;
 }
 
-// Fireworks and announcement functions
-function createFireworks() {
-    const container = document.getElementById('fireworks-container');
-    container.innerHTML = '';
-    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
-    
-    for(let i = 0; i < 100; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'firework-particle';
-        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        particle.style.setProperty('--tx', `${Math.random() * 400 - 200}px`);
-        particle.style.setProperty('--ty', `${Math.random() * 400 - 200}px`);
-        container.appendChild(particle);
-    }
-}
-
-function showAnnouncement(message) {
-    const announcement = document.getElementById('announcement');
-    const text = document.getElementById('announcement-text');
-    text.textContent = message;
-    announcement.style.display = 'block';
-    createFireworks();
-}
-
 // Game logic
 function handleCellClick(e) {
     const cell = e.target;
@@ -69,7 +56,7 @@ function handleCellClick(e) {
     cell.textContent = currentPlayer;
     
     if (checkWin()) {
-        showAnnouncement(`${currentPlayer} Wins! 🎉`);
+        showAnnouncement(currentPlayer === 'X' ? `${playerName} Wins! 🎉` : "Computer Wins! 🤖");
         gameActive = false;
         return;
     }
@@ -121,7 +108,7 @@ function computerMove() {
     }
 
     currentPlayer = 'X';
-    statusText.textContent = `Player ${currentPlayer}'s turn`;
+    statusText.textContent = `${playerName}'s turn`;
 }
 
 function checkWin() {
@@ -134,11 +121,35 @@ function checkDraw() {
     return gameState.every(cell => cell !== '');
 }
 
+// Fireworks and announcement functions
+function createFireworks() {
+    const container = document.getElementById('fireworks-container');
+    container.innerHTML = '';
+    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+    
+    for(let i = 0; i < 100; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'firework-particle';
+        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.setProperty('--tx', `${Math.random() * 400 - 200}px`);
+        particle.style.setProperty('--ty', `${Math.random() * 400 - 200}px`);
+        container.appendChild(particle);
+    }
+}
+
+function showAnnouncement(message) {
+    const announcement = document.getElementById('announcement');
+    const text = document.getElementById('announcement-text');
+    text.textContent = message;
+    announcement.style.display = 'block';
+    createFireworks();
+}
+
 function restartGame() {
     gameState = ['', '', '', '', '', '', '', '', ''];
     gameActive = true;
     currentPlayer = 'X';
-    statusText.textContent = `Player ${currentPlayer}'s turn`;
+    statusText.textContent = `${playerName}'s turn`;
     cells.forEach(cell => {
         cell.textContent = '';
         cell.classList.remove('x', 'o');
@@ -148,5 +159,16 @@ function restartGame() {
 }
 
 // Event listeners
-cells.forEach(cell => cell.addEventListener('click', handleCellClick));
-restartBtn.addEventListener('click', restartGame);
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('name-dialog').style.display = 'flex';
+    
+    // Add cell click handlers
+    cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+    
+    // Add restart button handler
+    restartBtn.addEventListener('click', restartGame);
+});
+
+document.getElementById('player-name').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') startGame();
+});
