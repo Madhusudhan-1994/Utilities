@@ -1,69 +1,121 @@
 const cells = document.querySelectorAll('[data-cell]');
-const board = document.getElementById('board');
 const statusText = document.getElementById('status');
 const restartBtn = document.getElementById('restartButton');
 const winConditions = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
-    [0, 4, 8], [2, 4, 6] // Diagonals
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], 
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], 
+    [0, 4, 8], [2, 4, 6]
 ];
 let currentPlayer = 'X';
 let gameActive = true;
 let gameState = ['', '', '', '', '', '', '', '', ''];
-const isComputerMode = true;
 
+// Difficulty AI functions
+function findWinningMove(player) {
+    for (const condition of winConditions) {
+        const [a, b, c] = condition;
+        const cells = [gameState[a], gameState[b], gameState[c]];
+        if (cells.filter(c => c === player).length === 2 && cells.includes('')) {
+            return condition[cells.indexOf('')];
+        }
+    }
+    return -1;
+}
+
+function getSmartMove() {
+    if (gameState[4] === '') return 4;
+    const corners = [0, 2, 6, 8];
+    const emptyCorners = corners.filter(i => gameState[i] === '');
+    if (emptyCorners.length > 0) return emptyCorners[Math.floor(Math.random() * emptyCorners.length)];
+    const edges = [1, 3, 5, 7];
+    const emptyEdges = edges.filter(i => gameState[i] === '');
+    if (emptyEdges.length > 0) return emptyEdges[Math.floor(Math.random() * emptyEdges.length)];
+    return -1;
+}
+
+// Fireworks and announcement functions
+function createFireworks() {
+    const container = document.getElementById('fireworks-container');
+    container.innerHTML = '';
+    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+    
+    for(let i = 0; i < 100; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'firework-particle';
+        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.setProperty('--tx', `${Math.random() * 400 - 200}px`);
+        particle.style.setProperty('--ty', `${Math.random() * 400 - 200}px`);
+        container.appendChild(particle);
+    }
+}
+
+function showAnnouncement(message) {
+    const announcement = document.getElementById('announcement');
+    const text = document.getElementById('announcement-text');
+    text.textContent = message;
+    announcement.style.display = 'block';
+    createFireworks();
+}
+
+// Game logic
 function handleCellClick(e) {
     const cell = e.target;
     const cellIndex = Array.from(cells).indexOf(cell);
 
-    if (gameState[cellIndex] !== '' || !gameActive || (isComputerMode && currentPlayer === 'O')) return;
+    if (gameState[cellIndex] !== '' || !gameActive || currentPlayer === 'O') return;
 
     gameState[cellIndex] = currentPlayer;
     cell.classList.add(currentPlayer.toLowerCase());
     cell.textContent = currentPlayer;
     
     if (checkWin()) {
-        statusText.textContent = `Player ${currentPlayer} wins!`;
+        showAnnouncement(`${currentPlayer} Wins! 🎉`);
         gameActive = false;
         return;
     }
     
     if (checkDraw()) {
-        statusText.textContent = "Game ended in a draw!";
+        showAnnouncement("Game Drawn! 🤝");
         gameActive = false;
         return;
     }
     
-    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-    statusText.textContent = `Player ${currentPlayer}'s turn`;
-
-    if (isComputerMode && currentPlayer === 'O' && gameActive) {
-        setTimeout(computerMove, 500);
-    }
+    currentPlayer = 'O';
+    statusText.textContent = `Computer's turn`;
+    setTimeout(computerMove, 500);
 }
 
 function computerMove() {
-    const emptyCells = gameState
-        .map((cell, index) => cell === '' ? index : null)
-        .filter(cell => cell !== null);
-    
-    if (emptyCells.length === 0) return;
+    let moveIndex = -1;
+    const difficulty = document.getElementById('difficulty').value;
 
-    const randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-    const cell = cells[randomIndex];
+    if (difficulty === 'moderate' || difficulty === 'expert') {
+        moveIndex = findWinningMove('O');
+        if (moveIndex === -1) moveIndex = findWinningMove('X');
+    }
     
-    gameState[randomIndex] = currentPlayer;
+    if (moveIndex === -1 && difficulty === 'expert') moveIndex = getSmartMove();
+    
+    if (moveIndex === -1) {
+        const emptyCells = gameState
+            .map((cell, index) => cell === '' ? index : null)
+            .filter(cell => cell !== null);
+        moveIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    }
+
+    const cell = cells[moveIndex];
+    gameState[moveIndex] = currentPlayer;
     cell.classList.add(currentPlayer.toLowerCase());
     cell.textContent = currentPlayer;
 
     if (checkWin()) {
-        statusText.textContent = `Player ${currentPlayer} wins!`;
+        showAnnouncement("Computer Wins! 🤖");
         gameActive = false;
         return;
     }
 
     if (checkDraw()) {
-        statusText.textContent = "Game ended in a draw!";
+        showAnnouncement("Game Drawn! 🤝");
         gameActive = false;
         return;
     }
@@ -73,11 +125,9 @@ function computerMove() {
 }
 
 function checkWin() {
-    return winConditions.some(combination => {
-        return combination.every(index => {
-            return gameState[index] === currentPlayer;
-        });
-    });
+    return winConditions.some(combination => 
+        combination.every(index => gameState[index] === currentPlayer)
+    );
 }
 
 function checkDraw() {
@@ -93,8 +143,10 @@ function restartGame() {
         cell.textContent = '';
         cell.classList.remove('x', 'o');
     });
+    document.getElementById('announcement').style.display = 'none';
+    document.getElementById('fireworks-container').innerHTML = '';
 }
 
-// Event Listeners
+// Event listeners
 cells.forEach(cell => cell.addEventListener('click', handleCellClick));
 restartBtn.addEventListener('click', restartGame);

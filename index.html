@@ -10,6 +10,14 @@
     <div class="container">
         <h1>Tic Tac Toe</h1>
         <div class="status" id="status">Player X's turn</div>
+        <div class="difficulty">
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty">
+                <option value="beginner">Beginner</option>
+                <option value="moderate">Moderate</option>
+                <option value="expert">Expert</option>
+            </select>
+        </div>
         <div class="game-board" id="board">
             <div class="cell" data-cell></div>
             <div class="cell" data-cell></div>
@@ -22,6 +30,10 @@
             <div class="cell" data-cell></div>
         </div>
         <button class="restart-btn" id="restartButton">Restart Game</button>
+    </div>
+    <div id="fireworks-container"></div>
+    <div id="announcement">
+        <h2 id="announcement-text"></h2>
     </div>
     <script src="script.js"></script>
 </body>
