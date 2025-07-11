@@ -3,45 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic Tac Toe</title>
+    <title>Utilities Home Page</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Tic Tac Toe</h1>
-        <div class="status" id="status">Player X's turn</div>
-        <div class="difficulty">
-            <label for="difficulty">Difficulty:</label>
-            <select id="difficulty">
-                <option value="beginner">Beginner</option>
-                <option value="moderate">Moderate</option>
-                <option value="expert">Expert</option>
-            </select>
-        </div>
-        <div class="game-board" id="board">
-            <div class="cell" data-cell></div>
-            <div class="cell" data-cell></div>
-            <div class="cell" data-cell></div>
-            <div class="cell" data-cell></div>
-            <div class="cell" data-cell></div>
-            <div class="cell" data-cell></div>
-            <div class="cell" data-cell></div>
-            <div class="cell" data-cell></div>
-            <div class="cell" data-cell></div>
-        </div>
-        <button class="restart-btn" id="restartButton">Restart Game</button>
+    <h1 class="main-title">Utilities Home</h1>
+    <div class="blocks-container">
+        <a href="simple-games.html" class="utility-block">
+            <h2>Simple Games</h2>
+        </a>
+        <a href="capital-markets.html" class="utility-block">
+            <h2>Capital Markets</h2>
+        </a>
     </div>
-    <div id="fireworks-container"></div>
-    <div id="announcement">
-        <h2 id="announcement-text"></h2>
-    </div>
-    <div id="name-dialog" class="modal">
-        <div class="modal-content">
-            <h3>Enter Your Name</h3>
-            <input type="text" id="player-name" placeholder="Your name..." maxlength="20">
-            <button onclick="startGame()">Start Game</button>
-        </div>
-    </div>
-    <script src="script.js"></script>
 </body>
 </html>
